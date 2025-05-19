@@ -1,20 +1,15 @@
 import mongoose from "mongoose";
 
 let cached = global.mongoose;
+
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-const dbConnect = async () => {
+async function connectDB() {
   if (cached.conn) {
     return cached.conn;
   }
-
-  if (cached.promise) {
-    return cached.promise;
-  }
-
-
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
@@ -29,4 +24,4 @@ const dbConnect = async () => {
   cached.conn = await cached.promise;
   return cached.conn;
 }
-export default dbConnect;
+export default connectDB;
