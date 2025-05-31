@@ -7,13 +7,13 @@ const products = [
     id: 1,
     title: "Experience Next-Gen Gaming",
     description: "20% OFF on PS5 Accessories",
-    image: assets.girl_with_earphone_image,
+    image: assets.girl_with_headphone_image,
   },
   {
     id: 2,
     title: "Experience Next-Gen Gaming",
     description: "20% OFF on PS5 Accessories",
-    image: assets.girl_with_headphone_image,
+    image: assets.girl_with_earphone_image,
   },
   {
     id: 3,
@@ -25,18 +25,19 @@ const products = [
 
 const PopularProducts = () => {
   return (
-    <div className="mt-14">
+    <div className="mt-14 mx-auto max-w-7xl ">
       <div className="flex flex-col items-center">
         <p className="text-3xl font-medium">Featured Products</p>
         <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 mt-12 md:px-14 px-4">
         {products.map(({ id, image, title, description }) => (
           <div key={id} className="relative group">
             <Image
               unoptimized={true}
-              height={200}
-              width={200}
+              height={800}
+              width={800}
               src={image}
               alt={title}
               className="group-hover:brightness-75 transition duration-300 w-full h-auto object-cover"
@@ -49,8 +50,8 @@ const PopularProducts = () => {
               <button className="flex items-center gap-1.5 bg-orange-600 px-4 py-2 rounded">
                 Buy now
               </button>
-              </div>
             </div>
+          </div>
         ))}
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { Inngest } from "inngest";
 import connectDB from "./bd";
-import User from "../models/User"; // Import User model
+import User from "../models/User";
 
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "my-app" });
@@ -55,10 +55,3 @@ export const syncUserDelete = inngest.createFunction(
     await User.findByIdAndDelete(id);
   }
 );
-
-// Create an Inngest client
-// Inngest invokes your functions securely via an API endpoint at / api / inngest.To enable that, you will create an Inngest client in your Next.js project, which you will use to send events and create functions.
-
-// Make a new directory next to your app directory(for example, src / inngest) where you'll define your Inngest functions and the client.
-
-// In the / src / inngest directory create an Inngest client:

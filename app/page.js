@@ -1,20 +1,17 @@
-import React from 'react'
-import NavBar from './components/NavBar'
-import Slider from './components/Slider'
-import Footer from './components/Footer'
-import Link from 'next/link'
-import Banner from './components/Banner'
-import NewsLetter from './components/NewsLetter'
-import FeaturedProducts from './components/FeaturedProducts'
-import PopularProducts from './components/PopularProducts'
-import Loading from './components/Loading'
-
-
+import React from "react";
+import Navbar from "./components/NavBar";
+import Slider from "./components/Slider";
+import PopularProducts from "./components/PopularProducts";
+import FeaturedProducts from "./components/FeaturedProducts";
+import Banner from "./components/Banner";
+import NewsLetter from "./components/NewsLetter";
+import Footer from "./components/Footer";
+import Loading from "./components/Loading";
 
 const Home = () => {
   return (
     <div>
-      <NavBar />
+      <Navbar />
       <Slider />
       {/* <Loading /> */}
       <FeaturedProducts />
@@ -23,7 +20,7 @@ const Home = () => {
       <NewsLetter />
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

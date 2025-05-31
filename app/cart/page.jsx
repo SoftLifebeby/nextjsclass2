@@ -1,14 +1,15 @@
 "use client"; // Enables client-side rendering in Next.js (necessary for hooks like useState/useEffect)
 
-import React from "react"; // Import React
-import { assets } from "@/assets/assets"; // Import assets
-import OrderSummary from "../components/OrderSummary"; // Import OrderSummary component
-import Image from "next/image"; // Import Image from Next.js
-import Navbar from "../components/NavBar"; // Import Navbar component
-import { useAppContext } from "../context/AppContext"; // Custom hook for React context
+// Importing React and necessary components/assets
+import React from "react";
+import { assets } from "../../assets/assets";
+import OrderSummary from "..//components/OrderSummary";
+import Image from "next/image";
+import Navbar from "..//components/Navbar";
+import { useAppContext } from "../context/AppContext";
 
 const Cart = () => {
-  // Destructure values from context: products list, router object, cartItems map, and cart manipulation functions
+  // Destructuring values from context: products list, router object, cartItems map, and cart manipulation functions
   const {
     products,
     router,
@@ -18,31 +19,32 @@ const Cart = () => {
     getCartCount,
   } = useAppContext();
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <>
-      <Navbar /> {/* Display top navigation bar */}
+      <Navbar />
       <div className="flex flex-col md:flex-row gap-10 px-6 md:px-16 lg:px-32 pt-14 mb-20">
-        {/* Left section: Cart items */}
         <div className="flex-1">
-          {/* Cart title and total item count */}
           <div className="flex items-center justify-between mb-8 border-b border-gray-500/30 pb-6">
-            <div>
-              <p className="text-2xl md:text-3xl text-gray-500">
-                Your <span className="font-medium text-orange-600">Cart</span>
-              </p>
-              <p className="text-lg md:text-xl text-gray-500/80">
-                {getCartCount()} Items {/* Display total item count */}
-              </p>
-            </div>
+            <p className="text-2xl md:text-3xl text-gray-500">
+              Your <span className="font-medium text-orange-600">Cart</span>
+            </p>
+            <p className="text-lg md:text-xl text-gray-500/80">
+              {getCartCount()} Items
+            </p>
           </div>
-
-          {/* Table to display cart items */}
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto">
-              {/* Table headers */}
               <thead className="text-left">
                 <tr>
-                  <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
+                  <th className="text-nowrap pb-6 md:px-4 px-1 text-gray-600 font-medium">
                     Product Details
                   </th>
                   <th className="pb-6 md:px-4 px-1 text-gray-600 font-medium">
@@ -56,33 +58,34 @@ const Cart = () => {
                   </th>
                 </tr>
               </thead>
-              {/* Table body: looping through each cart item */}
               <tbody>
                 {Object.keys(cartItems).map((itemId) => {
-                  const product = products.find((product) => product._id === itemId);
-                  // Skip if product not found or quantity is 0
+                  const product = products.find(
+                    (product) => product._id === itemId
+                  );
+
                   if (!product || cartItems[itemId] <= 0) return null;
 
                   return (
                     <tr key={itemId}>
-                      {/* Product info cell */}
                       <td className="flex items-center gap-4 py-4 md:px-4 px-1">
-                        {/* Product image */}
-                        <div className="rounded-lg overflow-hidden bg-gray-500/10 p-2">
-                          <Image
-                            src={product.image[0]}
-                            alt={product.name}
-                            className="w-16 h-auto object-cover mix-blend-multiply"
-                          />
+                        <div>
+                          <div className="rounded-lg overflow-hidden bg-gray-500/10 p-2">
+                            <Image
+                              src={product.image[0]}
+                              alt={product.name}
+                              className="w-16 h-auto object-cover mix-blend-multiply"
+                              width={1280}
+                              height={720}
+                            />
+                          </div>
+                          <button
+                            className="md:hidden text-xs text-orange-600 mt-1"
+                            onClick={() => updateCartQuantity(product._id, 0)}
+                          >
+                            Remove
+                          </button>
                         </div>
-                        {/* Mobile remove button */}
-                        <button
-                          className="md:hidden text-xs text-orange-600 mt-1"
-                          onClick={() => updateCartQuantity(product._id, 0)}
-                        >
-                          Remove
-                        </button>
-                        {/* Product name and desktop remove button */}
                         <div className="text-sm hidden md:block">
                           <p className="text-gray-800">{product.name}</p>
                           <button
@@ -93,17 +96,17 @@ const Cart = () => {
                           </button>
                         </div>
                       </td>
-                      {/* Product price */}
                       <td className="py-4 md:px-4 px-1 text-gray-600">
                         ${product.offerPrice}
                       </td>
-                      {/* Quantity controls */}
                       <td className="py-4 md:px-4 px-1">
                         <div className="flex items-center md:gap-2 gap-1">
-                          {/* Decrease quantity button */}
                           <button
                             onClick={() =>
-                              updateCartQuantity(product._id, cartItems[itemId] - 1)
+                              updateCartQuantity(
+                                product._id,
+                                cartItems[itemId] - 1
+                              )
                             }
                           >
                             <Image
@@ -112,16 +115,17 @@ const Cart = () => {
                               className="w-4 h-4"
                             />
                           </button>
-                          {/* Quantity input */}
                           <input
+                            onChange={(e) =>
+                              updateCartQuantity(
+                                product._id,
+                                Number(e.target.value)
+                              )
+                            }
                             type="number"
                             value={cartItems[itemId]}
-                            onChange={(e) =>
-                              updateCartQuantity(product._id, Number(e.target.value))
-                            }
                             className="w-8 border text-center appearance-none"
-                          />
-                          {/* Increase quantity button */}
+                          ></input>
                           <button onClick={() => addToCart(product._id)}>
                             <Image
                               src={assets.increase_arrow}
@@ -131,7 +135,6 @@ const Cart = () => {
                           </button>
                         </div>
                       </td>
-                      {/* Subtotal price */}
                       <td className="py-4 md:px-4 px-1 text-gray-600">
                         ${(product.offerPrice * cartItems[itemId]).toFixed(2)}
                       </td>
@@ -141,22 +144,18 @@ const Cart = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Continue Shopping Button */}
           <button
             onClick={() => router.push("/all-products")}
             className="group flex items-center mt-6 gap-2 text-orange-600"
           >
             <Image
+              className="group-hover:-translate-x-1 transition"
               src={assets.arrow_right_icon_colored}
               alt="arrow_right_icon_colored"
-              className="group-hover:-translate-x-1 transition"
             />
             Continue Shopping
           </button>
         </div>
-
-        {/* Right section: order summary and checkout button */}
         <OrderSummary />
       </div>
     </>

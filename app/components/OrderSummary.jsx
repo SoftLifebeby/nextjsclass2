@@ -1,44 +1,45 @@
-"use client"; // Declares this as a Client Component in Next.js
-
-import React, { useEffect, useState } from "react"; // Import React and hooks
-import { addressDummyData } from "@/assets/assets"; // Import dummy address data
-import { useAppContext } from "../context/AppContext"; // Custom hook for React context
+import { addressDummyData } from "../../assets/assets";
+import React, { useEffect, useState } from "react";
+import { useAppContext } from "../context/AppContext";
 
 const OrderSummary = () => {
-  // Destructure context values
-  const { currency, router, getCartCount, getCartAmount } = useAppContext();
+  const { currency, router, getCartCount, getCartAmount } = useAppContext(); // Getting currency symbol, router navigation, and cart utilities from context
 
-  // State management
-  const [selectedAddress, setSelectedAddress] = useState(null); // Selected address
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Dropdown visibility
-  const [userAddresses, setUserAddresses] = useState([]); // List of user addresses
+  const [selectedAddress, setSelectedAddress] = useState(null); // Selected address state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Whether the address dropdown is open
 
-  // Fetch user addresses (simulated API call)
+  const [userAddresses, setUserAddresses] = useState([]); // Stores list of user addresses
+
+  // Simulated API call to fetch user addresses
   const fetchUserAddresses = async () => {
     setUserAddresses(addressDummyData); // Using dummy data
   };
 
-  // Handle address selection
+  // Called when an address is selected from dropdown
   const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
-    setIsDropdownOpen(false); // Close dropdown after selection
+    setSelectedAddress(address); // Set selected address
+    setIsDropdownOpen(false); // Close dropdown
   };
 
-  // Placeholder for order creation
+  // Placeholder function to create order
   const createOrder = async () => {
     // Implement order creation logic here
   };
 
-  // Fetch addresses on component mount
+  // On component mount, fetch addresses
   useEffect(() => {
     fetchUserAddresses();
   }, []);
 
   return (
     <div className="w-full md:w-96 bg-gray-500/5 p-5">
-      <h2 className="text-xl md:text-2xl font-medium text-gray-700">Order Summary</h2>
-      {/* Divider */}
+      <h2 className="text-xl md:text-2xl font-medium text-gray-700">
+        Order Summary
+      </h2>
+
+      {/* Divider line */}
       <hr className="border-gray-500/30 my-5" />
+
       <div className="space-y-6">
         {/* Address Selection Dropdown */}
         <div>
@@ -50,12 +51,14 @@ const OrderSummary = () => {
               className="peer w-full text-left px-4 pr-2 py-2 bg-white text-gray-700 focus:outline-none"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
+              {/* Display selected address or placeholder */}
               <span>
                 {selectedAddress
                   ? `${selectedAddress.fullName}, ${selectedAddress.area}, ${selectedAddress.city}, ${selectedAddress.state}`
                   : "Select Address"}
               </span>
-              {/* Down arrow icon */}
+
+              {/* Down arrow icon with rotate animation */}
               <svg
                 className={`w-5 h-5 inline float-right transition-transform duration-200 ${
                   isDropdownOpen ? "rotate-0" : "-rotate-90"
@@ -63,6 +66,7 @@ const OrderSummary = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
+                stroke="#6B7280"
               >
                 <path
                   strokeLinecap="round"
@@ -72,22 +76,25 @@ const OrderSummary = () => {
                 />
               </svg>
             </button>
-            {/* Dropdown Menu */}
+
+            {/* Dropdown menu */}
             {isDropdownOpen && (
               <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5">
+                {/* Render list of user addresses */}
                 {userAddresses.map((address, index) => (
                   <li
                     key={index}
                     className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer"
                     onClick={() => handleAddressSelect(address)}
                   >
-                    {`${address.fullName}, ${address.area}, ${address.city}, ${address.state}`}
+                    {address.fullName}, {address.area}, {address.city},{" "}
+                    {address.state}
                   </li>
                 ))}
-                {/* Add New Address Link */}
+                {/* Link to add new address */}
                 <li
-                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
                   onClick={() => router.push("/add-address")}
+                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
                 >
                   + Add New Address
                 </li>
@@ -113,21 +120,25 @@ const OrderSummary = () => {
           </div>
         </div>
 
-        {/* Divider */}
         <hr className="border-gray-500/30 my-5" />
 
         {/* Cart Price Breakdown */}
         <div className="space-y-4">
-          {/* Items Count */}
+          {/* Item Count */}
           <div className="flex justify-between text-base font-medium">
             <p className="uppercase text-gray-600">Items {getCartCount()}</p>
-            <p className="text-gray-800">{currency}{getCartAmount()}</p>
+            <p className="text-gray-800">
+              {currency}
+              {getCartAmount()}
+            </p>
           </div>
+
           {/* Shipping */}
           <div className="flex justify-between">
             <p className="text-gray-600">Shipping Fee</p>
             <p className="font-medium text-gray-800">Free</p>
           </div>
+
           {/* Tax (2%) */}
           <div className="flex justify-between">
             <p className="text-gray-600">Tax (2%)</p>
@@ -136,6 +147,7 @@ const OrderSummary = () => {
               {Math.floor(getCartAmount() * 0.02)}
             </p>
           </div>
+
           {/* Total Price */}
           <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
             <p>Total</p>
@@ -145,15 +157,15 @@ const OrderSummary = () => {
             </p>
           </div>
         </div>
-
-        {/* Place Order Button */}
-        <button
-          onClick={createOrder}
-          className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
-        >
-          Place Order
-        </button>
       </div>
+
+      {/* Place Order Button */}
+      <button
+        onClick={createOrder}
+        className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700"
+      >
+        Place Order
+      </button>
     </div>
   );
 };

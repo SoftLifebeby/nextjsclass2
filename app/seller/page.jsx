@@ -1,70 +1,215 @@
-'use client'
-
-import { assets } from "@/assets/assets"
-import Image from "next/image"
-import { useState } from "react"
+"use client";
+import React, { useState } from "react";
+import Image from "next/image";
+import { assets } from "../../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const page = () => {
-  const [files, setFiles] = useState([])
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('')
-  const [price, setPrice] = useState('')
-  const [offerPrice, setOfferPrice] = useState('')
+  // Get token function from app context
+  const { getToken } = useAppContext();
 
+  // State for form fields
+  const [files, setFiles] = useState([]); // Stores uploaded image files
+  const [name, setName] = useState(""); // Product name
+  const [description, setDescription] = useState(""); // Product description
+  const [category, setCategory] = useState("Earphone"); // Product category with default value
+  const [price, setPrice] = useState(""); // Original price
+  const [offerPrice, setOfferPrice] = useState(""); // Discounted price
+
+  // Form submission handler
   const handleSubmit = async (e) => {
-    e.preventDefault()
-  }
+    e.preventDefault(); // Prevent default form submission behavior
+
+    // Create FormData object to handle file uploads along with other form data
+    const formData = new FormData();
+
+    // Append all product details to form data
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("price", price);
+    formData.append("offerPrice", offerPrice);
+
+    // Append each image file to form data
+    for (let i = 0; i < files.length; i++) {
+      formData.append("image", files[i]);
+    }
+
+    try {
+      // Get authentication token
+      const token = await getToken();
+
+      // Make POST request to add product API endpoint
+      const { data } = await axios.post("/api/product/add", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include auth token in headers
+          "Content-Type": "multipart/form-data", // Important for file uploads
+        },
+      });
+
+      if (data.success) {
+        // Show success message and reset form if product was added successfully
+        toast.success(data.message);
+        setFiles([]);
+        setName("");
+        setDescription("");
+        setCategory("Earphone");
+        setPrice("");
+        setOfferPrice("");
+      } else {
+        // Show error message if API returned an error
+        toast.error(data.message);
+      }
+    } catch (error) {
+      // Show error message if request failed
+      toast.error(error.message);
+    }
+  };
+
   return (
     <div className="flex-1 min-h-screen flex flex-col justify-between">
-      <form action={handleSubmit} className="md:p-10 p-4 space-y-5 max-w-lg">
-        <div className="">
-          <p>Product Image</p>
-          <div className="">
-          <Image alt='' width={100}
-            height={100} className='' 
-            src={assets.upload_area}
+      {/* Product form */}
+      <form onSubmit={handleSubmit} className="md:p-10 p-4 space-y-5 max-w-lg">
+        {/* Image upload section */}
+        <div>
+          <p className="text-base font-medium">Product Image</p>
+          <div className="flex flex-wrap items-center gap-3 mt-2">
+            {/* Render 4 image upload slots */}
+            {[...Array(4)].map((_, index) => (
+              <label key={index} htmlFor={`image${index}`}>
+                {/* Hidden file input */}
+                <input
+                  onChange={(e) => {
+                    // Update files state when a file is selected
+                    const updatedFiles = [...files];
+                    updatedFiles[index] = e.target.files[0];
+                    setFiles(updatedFiles);
+                  }}
+                  type="file"
+                  id={`image${index}`}
+                  hidden
+                />
+                {/* Display either the uploaded image or a placeholder */}
+                <Image
+                  key={index}
+                  className="max-w-24 cursor-pointer"
+                  src={
+                    files[index]
+                      ? URL.createObjectURL(files[index]) // Create preview URL for uploaded file
+                      : assets.upload_area // Show upload placeholder
+                  }
+                  alt=""
+                  width={100}
+                  height={100}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Product name input */}
+        <div className="flex flex-col gap-1 max-w-md">
+          <label className="text-base font-medium" htmlFor="product-name">
+            Product Name
+          </label>
+          <input
+            id="product-name"
+            type="text"
+            placeholder="Type here"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            required
           />
-          <input type="file" />
-          </div>
-          <div className="flex flex-col mt-4 gap-1 max-w-md">
-            <p className="font-medium">Product Name</p>
-            <input id="product-name" type="text" placeholder="Enter Product Name" onChange={(e) => setName(e.target.value)} value={name} required className="border rounded py-3 px-3 border-gray-300" />
-          </div>
-          <div className="flex flex-col mt-4 gap-1 max-w-md">
-            <p className="font-medium">Product Description</p>
-            <textarea rows={4} id="product-description" type='text' placeholder="Enter Product Description" onChange={(e) => setDescription(e.target.value)} value={description} required className="border rounded py-3 px-3 border-gray-300" />
-          </div>
-          <div className="flex items-center mt-4 gap-5 flex-wrap">
-            <div className="flex flex-col gap-1 w-32">
-              <label htmlFor="" className="text-base font-medium">Category</label>
-          <select name="" id="category" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" onChange={(e) => setCategory(e.target.value)} defaultValue={category}>
-            <option value="earphone">Earphone</option>
-            <option value="headphone">Headphone</option>
-            <option value="watch">Watch</option>
-            <option value="smartphone">Smartphone</option>
-            <option value="laptop">Laptop</option>
-            <option value="camera">Camera</option>
-            <option value="accessories">Accessories</option>
-          </select>
         </div>
-        <div className="flex flex-col gap-1 w-32">
-          <label className="text-base font-medium" htmlFor='offer-price'>Product Price</label>
-          <input id="offer-price" type="number" placeholder="0" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" onChange={(e) => setPrice(e.target.value)} value={price} required />
+
+        {/* Product description textarea */}
+        <div className="flex flex-col gap-1 max-w-md">
+          <label
+            className="text-base font-medium"
+            htmlFor="product-description"
+          >
+            Product Description
+          </label>
+          <textarea
+            id="product-description"
+            rows={4}
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
+            placeholder="Type here"
+            onChange={(e) => setDescription(e.target.value)}
+            value={description}
+            required
+          ></textarea>
         </div>
-        <div className="flex flex-col gap-1 w-32">
-          <label className="text-base font-medium" htmlFor='offer-price'>Offer Price</label>
-          <input id="offer-price" type="number" placeholder="0" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" onChange={(e) => setOfferPrice(e.target.value)} value={offerPrice} required />
+
+        {/* Category and price inputs */}
+        <div className="flex items-center gap-5 flex-wrap">
+          {/* Category dropdown */}
+          <div className="flex flex-col gap-1 w-32">
+            <label className="text-base font-medium" htmlFor="category">
+              Category
+            </label>
+            <select
+              id="category"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              onChange={(e) => setCategory(e.target.value)}
+              defaultValue={category}
+            >
+              <option value="Earphone">Earphone</option>
+              <option value="Headphone">Headphone</option>
+              <option value="Watch">Watch</option>
+              <option value="Smartphone">Smartphone</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Camera">Camera</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+
+          {/* Original price input */}
+          <div className="flex flex-col gap-1 w-32">
+            <label className="text-base font-medium" htmlFor="product-price">
+              Product Price
+            </label>
+            <input
+              id="product-price"
+              type="number"
+              placeholder="0"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              onChange={(e) => setPrice(e.target.value)}
+              value={price}
+              required
+            />
+          </div>
+
+          {/* Offer price input */}
+          <div className="flex flex-col gap-1 w-32">
+            <label className="text-base font-medium" htmlFor="offer-price">
+              Offer Price
+            </label>
+            <input
+              id="offer-price"
+              type="number"
+              placeholder="0"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              onChange={(e) => setOfferPrice(e.target.value)}
+              value={offerPrice}
+              required
+            />
+          </div>
         </div>
-        <div />
-        <button type="submit" className="px-8 py-2.5 mt-4 bg-orange-600 text-white font-medium rounded">
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded"
+        >
           ADD
         </button>
-        </div>
-        </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
